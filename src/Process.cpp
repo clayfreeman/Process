@@ -100,7 +100,7 @@ bool Process::start() {
     // Reduce complex objects to basic contents
     int i = 0;
     char** argv = new char*[this->argv.size() + 1];
-    char** envp = new char*[this->argv.size() + 1];
+    char** envp = new char*[this->envp.size() + 1];
 
     // Build an array of pointers to each item
     for (std::string& arg : this->argv)
