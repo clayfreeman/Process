@@ -54,8 +54,10 @@ void Process::clearEnvs() {
 }
 
 void Process::check() {
-  if (waitpid(this->pid, NULL, WNOHANG) > 0)
+  if (kill(pid, 0) != 0) {
+    waitpid(this->pid, NULL, WNOHANG);
     this->stop();
+  }
 }
 
 void Process::stop() {
