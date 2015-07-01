@@ -54,7 +54,8 @@ void Process::clearEnvs() {
 }
 
 void Process::check() {
-  if (kill(pid, 0) != 0) {
+  kill(this->pid, 0);
+  if (errno == ESRCH) {
     waitpid(this->pid, NULL, WNOHANG);
     this->stop();
   }
