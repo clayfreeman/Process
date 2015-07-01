@@ -8,6 +8,7 @@
  * @date       June 15, 2015
  */
 
+#include <errno.h>
 #include <signal.h>
 #include <string>
 #include <sys/wait.h>
