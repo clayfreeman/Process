@@ -55,8 +55,8 @@ void Process::clearEnvs() {
 }
 
 void Process::check() {
+  waitpid(this->pid, nullptr, WNOHANG);
   if (kill(this->pid, 0) == -1 && (errno == ESRCH || errno == EPERM)) {
-    waitpid(this->pid, NULL, WNOHANG);
     this->stop();
   }
 }
@@ -121,13 +121,15 @@ bool Process::start() {
     // Fork the process and prepare for execution
     this->pid = fork();
     if (this->pid == 0) {
-      // Prepare the pipes for usage
+      // Close the read end for output and write end for input
       close(epipe[0]);
       close(ipipe[1]);
       close(opipe[0]);
-      dup2(epipe[1], STDERR_FILENO);
-      dup2(ipipe[0], STDIN_FILENO);
-      dup2(opipe[1], STDOUT_FILENO);
+      // Prepare the pipes for usage
+      while ((dup2(epipe[1], STDERR_FILENO) == -1) && (errno == EINTR));
+      while ((dup2(ipipe[0], STDIN_FILENO) == -1) && (errno == EINTR));
+      while ((dup2(opipe[1], STDOUT_FILENO) == -1) && (errno == EINTR));
+      // Close the duplicated pipes
       close(epipe[1]);
       close(ipipe[0]);
       close(opipe[1]);
@@ -142,10 +144,11 @@ bool Process::start() {
       _exit(1);
     }
     else {
-      // Prepare the pipes for usage
+      // Close the write end for output and read end for input
       close(epipe[1]);
       close(ipipe[0]);
       close(opipe[1]);
+      // Prepare the pipes for usage
       this->err = epipe[0];
       this->in  = ipipe[1];
       this->out = opipe[0];
@@ -155,7 +158,7 @@ bool Process::start() {
     delete[] envp;
 
     // Update return value
-    retVal = (this->pid != -1 ? 1 : 0);
+    retVal = (this->pid != -1 ? true : false);
   }
   return retVal;
 }
