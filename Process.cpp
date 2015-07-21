@@ -14,7 +14,7 @@
 #include <sys/wait.h>
 #include <vector>
 #include <unistd.h>
-#include "../include/Process.hpp"
+#include "Process.hpp"
 
 Process::Process(const std::string& path, const std::vector<std::string>& args,
     const std::vector<std::string>& envs) {
